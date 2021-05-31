@@ -2,18 +2,18 @@ getwd()
 library(tidyverse)
 library(Seurat)
 
-# 1. filter FB, DC cells : filtering µÈ s1-s17 count data¸¦ ¾ò°Ô µÈ´Ù
+# 1. filter FB, DC cells : filtering ëœ s1-s17 count dataë¥¼ ì–»ê²Œ ëœë‹¤
 
-## ¾Æ·¡¿Í °°Àº command·Î 17 sample ¸ğµÎ ÀĞ±â
+## ì•„ë˜ì™€ ê°™ì€ commandë¡œ 17 sample ëª¨ë‘ ì½ê¸°
 # s1<- as.data.frame(read.table("GSM4430459_MS.sample1.clean.data.txt",header = T,sep = ",", row.names = 1))
 
-## ¾Æ·¡¿Í °°Àº command·Î ÀüºÎ seurat object »ı¼º 
+## ì•„ë˜ì™€ ê°™ì€ commandë¡œ ì „ë¶€ seurat object ìƒì„± 
 # s1_seurat <- CreateSeuratObject(counts = s1 , project = "project", min.cells = 3, min.features = 200)
 
-## °°Àº status ³¢¸® merge (LS : 1,2,5,7 / NL : 3,11,14,15,16 / H : 4,6,8,9,10,12,13,17 ) : ls¸¸ code¸¦ Àû¾úÀ¸³ª nl, hµµ ¾Ë¸ÂÀº sampleµé³¢¸® merge ÇØÁÖ¾ú´Ù.
+## ê°™ì€ status ë¼ë¦¬ merge (LS : 1,2,5,7 / NL : 3,11,14,15,16 / H : 4,6,8,9,10,12,13,17 ) : lsë§Œ codeë¥¼ ì ì—ˆìœ¼ë‚˜ nl, hë„ ì•Œë§ì€ sampleë“¤ë¼ë¦¬ merge í•´ì£¼ì—ˆë‹¤.
 # ls <- merge(s1_seurat, y = c(s2_seurat,s5_seurat,s7_seurat), project = "project")
 
-#data integration & clustering analysis : nl, h ¸ğµÎ µ¿ÀÏÇÑ ¹æ¹ıÀ¸·Î integration + clusering analysis ÁøÇà
+#data integration & clustering analysis : nl, h ëª¨ë‘ ë™ì¼í•œ ë°©ë²•ìœ¼ë¡œ integration + clusering analysis ì§„í–‰
 # testlist <- SplitObject(ls, split.by = "orig.ident")
 # testlist <- lapply(X = testlist, FUN = function(x) {
 #   x <- NormalizeData(x)
@@ -31,19 +31,19 @@ library(Seurat)
 # lsfibs <- FindClusters(lsfibs, resolution = 0.5)
 # DimPlot(lsfibs, reduction = "tsne", group.by = "orig.ident")
 
-## marker geneÀ¸·Î filtering ( FB : COL1A1, DCN / DC: CD1C) : subset¿¡¼­ marker geneÀÇ ¹ßÇöÀÌ ¶Ñ·ÇÇÑ clusterÀÇ number¸¦ Àû¾îÁØ´Ù. FB »Ó¸¸ ¾Æ´Ï¶ó DCµµ ¶È°°Àº Code·Î filteringÀ» ÁøÇàÇÏ¿´´Ù.
+## marker geneìœ¼ë¡œ filtering ( FB : COL1A1, DCN / DC: CD1C) : subsetì—ì„œ marker geneì˜ ë°œí˜„ì´ ëšœë ·í•œ clusterì˜ numberë¥¼ ì ì–´ì¤€ë‹¤. FB ë¿ë§Œ ì•„ë‹ˆë¼ DCë„ ë˜‘ê°™ì€ Codeë¡œ filteringì„ ì§„í–‰í•˜ì˜€ë‹¤.
 # FeaturePlot(lsfibs, features = c("COL1A1","DCN))
 # markers <- FindAllMarkers(lsfibs, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
 # lsfiltered <- subset(lsfibs, subset=seurat_clusters %in% c(cluster numbers))
 
-## ls, nl, h¿¡ ´ëÇØ À§ÀÇ °úÁ¤À» ´Ù ÁøÇàÇÑ ÈÄ ¼ÂÀ» merge
+## ls, nl, hì— ëŒ€í•´ ìœ„ì˜ ê³¼ì •ì„ ë‹¤ ì§„í–‰í•œ í›„ ì…‹ì„ merge
 # fibs <- merge(lsfiltered, y = c(nlfiltered,hfiltered) , project = "project")
 
-## cell id ¾ò±â 
+## cell id ì–»ê¸° 
 # cells <- fibs@assays[["integrated"]]@data@Dimnames[[2]]
 # write.table(cells,file = 'cells.txt',sep = '\t', row.names = T, col.names = T, quote = F)
 
-## raw data¿¡¼­ ÇØ´ç cell¿¡ °üÇÑ Á¤º¸¸¸ ¾ò¾î³»±â : ¾Æ·¡ÀÇ °úÁ¤À» s1ºÎÅÍ s17±îÁö ´Ù ÇØÁØ´Ù.
+## raw dataì—ì„œ í•´ë‹¹ cellì— ê´€í•œ ì •ë³´ë§Œ ì–»ì–´ë‚´ê¸° : ì•„ë˜ì˜ ê³¼ì •ì„ s1ë¶€í„° s17ê¹Œì§€ ë‹¤ í•´ì¤€ë‹¤.
 # s1selc <- read.table("../cells.txt")
 # id <- s1selc$V1
 # filtered <- filter(s1, V1 %in% id)
@@ -52,11 +52,11 @@ library(Seurat)
 
 ###################################################################################
 
-#2. Clusering analysis with filtered FB & DC cells : ¾Æ·¡ÀÇ ¸ğµç °úÁ¤À» DC¿¡¼­µµ µ¿ÀÏÇÏ°Ô ÁøÇàÇØÁÖ¾î¾ß ÇÕ´Ï´Ù.
+#2. Clusering analysis with filtered FB & DC cells : ì•„ë˜ì˜ ëª¨ë“  ê³¼ì •ì„ DCì—ì„œë„ ë™ì¼í•˜ê²Œ ì§„í–‰í•´ì£¼ì–´ì•¼ í•©ë‹ˆë‹¤.
 
 ## read filtered count data & make seurat object (from 1 through 17) ## 
 s1<- as.data.frame(t(read.table("s1_fil.txt.gz",header = T,sep = ",", row.names = 1)))
-s1_seurat <- CreateSeuratObject(counts = s9, project = "project", min.cells = 3, min.features = 200)
+s1_seurat <- CreateSeuratObject(counts = s1, project = "project", min.cells = 3, min.features = 200)
 
 ## merge all seurat objects ##
 allfibs <- merge(s1_seurat, y = c(s2_seurat,s3_seurat,s4_seurat,s5_seurat,s6_seurat,s7_seurat,s8_seurat,s9_seurat,s10_seurat,s11_seurat,s12_seurat,s13_seurat,s14_seurat,s15_seurat,s16_seurat,s17_seurat) , project = "project")
@@ -74,7 +74,7 @@ allfibs <- RunTSNE(allfibs, dims = 1:10,check_duplicates = FALSE)
 DimPlot(allfibs, reduction = "tsne", label = TRUE, repel = TRUE)
 
 ## plot by status ##
-#sample¸¶´Ù status¸¦ cellÀÇ ¼ö¸¸Å­ ¹İº¹ÇÑ character¸¦ ¸¸µç ÈÄ plotting
+#sampleë§ˆë‹¤ statusë¥¼ cellì˜ ìˆ˜ë§Œí¼ ë°˜ë³µí•œ characterë¥¼ ë§Œë“  í›„ plotting
 table(allfibs@meta.data$orig.ident)
 sample <- c(rep("ls",1201), rep("ls",444),rep("nl",801),rep("h",2156),rep("ls",782),rep("h",922),rep("ls",147), rep("h",232),rep("h",121),rep("nl",473),rep("h",225),rep("h",62),rep("nl",188), rep("nl",10), rep("h",291))
 test@meta.data$orig.ident <- sample
@@ -83,12 +83,12 @@ DimPlot(test, reduction = "tsne", group.by = "orig.ident")
 
 ###################################################################################
 
-# 3. pyscenic : jupyter notebook °á°ú ÆÄÀÏ·Î Ã·ºÎ
+# 3. pyscenic : jupyter notebook ê²°ê³¼ íŒŒì¼ë¡œ ì²¨ë¶€
 
 # 4. cellphonedb 
 
-## filter FB sub clusters & get count dat - COL6A5+COL18A1+ / COL11A1+LAMC3+ / APOE+ABCA+ ÀÌ ¼¼ sub cluster¿¡ ´ëÇØ ¸ğµÎ µ¿ÀÏÇÑ code Àû¿ë
-### ÀÌ °úÁ¤Àº DC sub cluster filtering ¹× count dat ¾ò´Â µ¥¿¡ µ¿ÀÏÇÏ°Ô Àû¿ëÇØÁÖ¾î¾ß ÇÕ´Ï´Ù. - irf8 / lamp3 / mmp12
+## filter FB sub clusters & get count dat - COL6A5+COL18A1+ / COL11A1+LAMC3+ / APOE+ABCA+ ì´ ì„¸ sub clusterì— ëŒ€í•´ ëª¨ë‘ ë™ì¼í•œ code ì ìš©
+### ì´ ê³¼ì •ì€ DC sub cluster filtering ë° count dat ì–»ëŠ” ë°ì— ë™ì¼í•˜ê²Œ ì ìš©í•´ì£¼ì–´ì•¼ í•©ë‹ˆë‹¤. - irf8 / lamp3 / mmp12
 FeaturePlot(allfibs, features = c("COL6A5","COL18A1"))
 col6a5 <- subset(test, subset=seurat_clusters %in% c(3))
 test <- merge(col6a5, y = c(col11a1,apoe) , project = "project")
@@ -97,13 +97,13 @@ write.table(fibcount,"./fibcounts.txt", sep = "\t",quote = F, row.names=F)
 saveRDS(col6, file = "./col6.rds")
 
 
-## À§¿¡¼­ ¾òÀº fb count, dc count data ÇÕÄ¡±â
+## ìœ„ì—ì„œ ì–»ì€ fb count, dc count data í•©ì¹˜ê¸°
 counts <- merge(fibcount, dccount, by=0, all=TRUE) 
 counts[is.na(counts)] <- 0  
 write.csv(counts,"../expressioncount.csv")
 ### and then change gene names to ENSEMBLE ID via DAVID GENE ID CONVERSION TOOL and save as counts.txt
 
-## metadata FB, DC : ¸ğµç subcluster ¸¶´Ù []meta¸¦ ¸¸µç ÈÄ ³ªÁß¿¡ ÀüÃ¼ merge
+## metadata FB, DC : ëª¨ë“  subcluster ë§ˆë‹¤ []metaë¥¼ ë§Œë“  í›„ ë‚˜ì¤‘ì— ì „ì²´ merge
 Cell <- colnames(fibcount)
 col6meta <- as.data.frame(Cell)
 cell_type <- c(rep("COL6A5+", length(Cell)))
@@ -111,7 +111,7 @@ col6meta$cell_type <- cell_type
 met <- rbind(apoemeta,col11meta,col6meta, dc1meta, dc2meta, inflameta)
 write.table(met, "../metadata.txt", quote = FALSE, sep = "\t", row.names = F)
 
-## ÀÌÈÄ °úÁ¤Àº linux command
+## ì´í›„ ê³¼ì •ì€ linux command
 #cellphonedb method statistical_analysis metadata.txt counts.txt --iterations=10 --threads=2
 #cellphonedb plot dot_plot
 #cellphonedb plot heatmap_plot yourmeta.txt
